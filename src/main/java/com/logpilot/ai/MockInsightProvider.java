@@ -1,0 +1,5 @@
+package com.logpilot.ai;
+
+import com.logpilot.logs.LogEvent;import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;import org.springframework.stereotype.Component;import java.util.List;
+@Component @ConditionalOnProperty(name="logpilot.ai.provider",havingValue="mock",matchIfMissing=true)
+public class MockInsightProvider implements InsightProvider {public String name(){return "mock";}public InsightResult analyze(List<LogEvent> events){long errors=events.stream().filter(e->e.level().equals("ERROR")).count();var evidence=events.stream().filter(e->e.level().equals("ERROR")).limit(5).map(e->e.eventId().toString()).toList();return new InsightResult("Mock analysis of %d recent events found %d errors. Configure a model adapter for generated findings.".formatted(events.size(),errors),List.of(errors>0?"Errors are present in the selected time range.":"No error-level events were found in the selected range."),List.of("Inspect the evidence events and trace IDs.","Compare error timestamps with recent deployments."),evidence,name());}}

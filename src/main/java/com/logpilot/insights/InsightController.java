@@ -1,0 +1,4 @@
+package com.logpilot.insights;
+import com.logpilot.ai.InsightProvider;import com.logpilot.logs.LogRepository;import org.springframework.web.bind.annotation.*;import java.time.Instant;import java.util.Map;
+@RestController @RequestMapping("/api/v1/insights")
+public class InsightController {private final LogRepository logs;private final InsightProvider provider;public InsightController(LogRepository logs,InsightProvider provider){this.logs=logs;this.provider=provider;}@PostMapping("/analyze")public Map<String,Object> analyze(@RequestBody(required=false) Request request){Request r=request==null?new Request(null,null,null):request;var events=logs.recentForAnalysis(r.service(),r.from(),r.to(),200);return Map.of("analysis",provider.analyze(events),"eventCount",events.size(),"note","AI output is a suggestion. Verify findings against source logs.");}public record Request(String service,Instant from,Instant to){}}
